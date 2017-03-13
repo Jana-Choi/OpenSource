@@ -1,0 +1,1617 @@
+<!--
+Defines some, but not all, of MyPaint's core UI.
+Perhaps an increasing amount.
+-->
+<interface>
+
+<object class="GtkUIManager" id="app_ui_manager">
+  <!-- Defines GtkActions for commands -->
+  <ui/><!-- TODO: move menu.xml here? -->
+  <child>
+    <object class="GtkActionGroup" id="FileActions">
+      <!-- Document loading and saving -->
+      <child>
+        <object class="GtkAction" id="New">
+          <property name="icon-name">mypaint-document-new-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|File|">New</property>
+          <property name="tooltip" translatable="yes"
+            >Start with a new blank canvas</property>
+          <signal name="activate" handler="new_cb"/>
+        </object>
+        <accelerator key="n" modifiers="GDK_CONTROL_MASK"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="Open">
+          <property name="icon-name">mypaint-document-open-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|File|">Open...</property>
+          <property name="tooltip" translatable="yes"
+            >Open a file, replacing the current painting</property>
+          <signal name="activate" handler="open_cb"/>
+        </object>
+        <accelerator key="o" modifiers="GDK_CONTROL_MASK"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="OpenLast">
+          <property name="label" translatable="yes"
+            context="Menu|File|">Open Most Recent</property>
+          <property name="tooltip" translatable="yes"
+            >Open the last file you saved</property>
+          <signal name="activate" handler="open_last_cb"/>
+        </object>
+        <accelerator key="F3"/>
+      </child>
+      <child>
+        <object class="GtkRecentAction" id="OpenRecent">
+          <property name="label" translatable="yes"
+            context="Menu|File|">Open Recent</property>
+          <property name="icon-name">mypaint-document-open-recent-symbolic</property>
+          <property name="tooltip" translatable="yes"
+            >Open Recent files</property>
+          <signal name="item-activated" handler="open_recent_cb"/>
+          <property name="show-numbers">1</property>
+          <property name="show-tips">1</property>
+          <property name="show-tips">1</property>
+          <property name="sort-type">GTK_RECENT_SORT_MRU</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="Reload">
+          <property name="icon-name">mypaint-document-revert-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|File|">Revert</property>
+          <property name="tooltip" translatable="yes"
+            >Reload the current file</property>
+          <signal name="activate" handler="reload_cb"/>
+        </object>
+        <accelerator key="F5"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="Save">
+          <property name="icon-name">mypaint-document-save-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|File|">Save</property>
+          <property name="tooltip" translatable="yes"
+            >Save to a file</property>
+          <signal name="activate" handler="save_cb"/>
+        </object>
+        <accelerator key="s" modifiers="GDK_CONTROL_MASK"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="SaveAs">
+          <property name="icon-name">mypaint-document-save-as-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|File|">Save As...</property>
+          <property name="tooltip" translatable="yes"
+            >Save to a file with a new name</property>
+          <signal name="activate" handler="save_as_cb"/>
+        </object>
+        <accelerator key="s" modifiers="GDK_CONTROL_MASK | GDK_SHIFT_MASK"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="Export">
+          <property name="icon-name">mypaint-document-export-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|File|">Export...</property>
+          <property name="tooltip" translatable="yes">Export to a file</property>
+          <signal name="activate" handler="save_as_cb"/>
+        </object>
+        <accelerator key="e" modifiers="GDK_CONTROL_MASK | GDK_SHIFT_MASK"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="SaveScrap">
+          <property name="icon-name">mypaint-scrap-save-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|File|">Save As Scrap</property>
+          <property name="tooltip" translatable="yes"
+            >Saves to a new scrap file. If the drawing is currently saved as a scrap, this will write a new revision of it.</property>
+          <signal name="activate" handler="save_scrap_cb"/>
+        </object>
+        <accelerator key="F2"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="PrevScrap">
+          <property name="icon-name">mypaint-scrap-prev-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|File|">Open Previous Scrap</property>
+          <property name="tooltip" translatable="yes"
+            >Load the previous scrap file, replacing the current drawing</property>
+          <signal name="activate" handler="open_scrap_cb"/>
+        </object>
+        <accelerator key="F6"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="NextScrap">
+          <property name="icon-name">mypaint-scrap-next-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|File|">Open Next Scrap</property>
+          <property name="tooltip" translatable="yes"
+            >Load the next scrap file, replacing the current drawing</property>
+          <signal name="activate" handler="open_scrap_cb"/>
+        </object>
+        <accelerator key="F7"/>
+      </child>
+    </object><!-- /FileActions -->
+  </child>
+  <child>
+    <object class="GtkActionGroup" id="DocumentActions">
+      <!-- Actions affecting the current document -->
+      <!-- Dropdown ToolActions: defined in gui.toolbar -->
+      <child>
+        <object class="MyPaintFactoryAction" id="ColorDropdown">
+          <property name="tooltip" translatable="yes" context="toolbar|"
+            >Current color</property>
+        </object>
+      </child>
+      <child>
+        <object class="MyPaintFactoryAction" id="BrushDropdown">
+          <property name="tooltip" translatable="yes" context="toolbar|"
+            >Current brush</property>
+        </object>
+      </child>
+
+      <!-- Brushes and brush groups: defined in gui.brushselectionwindow -->
+      <child>
+        <object class="MyPaintFactoryAction" id="BrushGroups">
+          <property name="tooltip" translatable="yes" context="Menu|Brush|"
+            >List of brush groups</property>
+          <property name="label" translatable="yes" context="Menu|Brush|"
+            >Brush Groups</property>
+          <property name="short-label" translatable="yes"
+            context="Toolbar|">Brushes</property>
+          <property name="icon-name">mypaint-brushes-symbolic</property>
+        </object>
+      </child>
+
+      <!-- List of available color adjusters -->
+      <child>
+        <object class="MyPaintFactoryAction" id="ColorAdjusters">
+          <property name="tooltip" translatable="yes" context="Toolbar|"
+            >Available color adjusters</property>
+          <property name="label" translatable="yes" context="Toolbar|"
+            >Color Adjusters</property>
+          <property name="short-label" translatable="yes"
+            context="Toolbar|">Colors</property>
+          <property name="icon-name">mypaint-colors-symbolic</property>
+        </object>
+      </child>
+
+      <!-- Layer modes: defined in gui.layermodes -->
+      <child>
+        <object class="MyPaintFactoryAction" id="LayerMode">
+          <property name="tooltip" translatable="yes" context="Menu|Layer|"
+            >The current layer's compositing mode</property>
+          <property name="label" translatable="yes" context="Menu|Layer|"
+            >Compositing Mode</property>
+          <property name="short-label" translatable="yes"
+            context="Toolbar|">Mode</property>
+          <property name="icon-name">mypaint-compositing-symbolic</property>
+        </object>
+      </child>
+
+      <child>
+        <object class="GtkToggleAction" id="LayerStackIsolated">
+          <property name="tooltip" translatable="yes" context="Menu|Layer|"
+            >Group is rendered separately over a transparent background. This happens automatically when non-standard modes or opacities are applied to the group itself.</property>
+          <property name="label" translatable="yes" context="Menu|Layer|"
+            >Group Isolation</property>
+          <property name="short-label" translatable="yes"
+            context="Toolbar|">Isolation</property>
+          <signal name="toggled" handler="layer_stack_isolated_toggled_cb"/>
+        </object>
+      </child>
+
+      <!-- Undo stack -->
+      <child>
+        <object class="GtkAction" id="Undo">
+          <property name="icon_name">mypaint-undo-ltr-symbolic</property>
+          <!-- Code in document.py takes care of ltr/rtl details -->
+          <signal name="activate" handler="undo_cb"/>
+        </object>
+        <accelerator key="z"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="Redo">
+          <property name="icon_name">mypaint-redo-ltr-symbolic</property>
+          <!-- Code in document.py takes care of ltr/rtl details -->
+          <signal name="activate" handler="redo_cb"/>
+        </object>
+        <accelerator key="y"/>
+      </child>
+      <!-- Brush size -->
+      <child>
+        <object class="GtkAction" id="Bigger">
+          <property name="label" translatable="yes"
+            context="Menu|Brush|">Bigger</property>
+          <property name="tooltip" translatable="yes"
+            >Increase brush radius</property>
+          <signal name="activate" handler="brush_bigger_cb"/>
+        </object>
+        <accelerator key="f"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="Smaller">
+          <property name="label" translatable="yes"
+            context="Menu|Brush|">Smaller</property>
+          <property name="tooltip" translatable="yes"
+            >Decrease brush radius</property>
+          <signal name="activate" handler="brush_smaller_cb"/>
+        </object>
+        <accelerator key="d"/>
+      </child>
+      <!-- Brush opacity -->
+      <child>
+        <object class="GtkAction" id="MoreOpaque">
+          <property name="label" translatable="yes"
+            context="Menu|Brush|">Increase Opacity</property>
+          <property name="tooltip" translatable="yes"
+            >Increase brush opacity</property>
+          <signal name="activate" handler="more_opaque_cb"/>
+        </object>
+        <accelerator key="s"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="LessOpaque">
+          <property name="label" translatable="yes"
+            context="Menu|Brush|">Decrease Opacity</property>
+          <property name="tooltip" translatable="yes"
+            >Decrease brush opacity</property>
+          <signal name="activate" handler="less_opaque_cb"/>
+        </object>
+        <accelerator key="a"/>
+      </child>
+      <!-- Brush painting color -->
+      <child>
+        <object class="GtkAction" id="Brighter">
+          <property name="label" translatable="yes"
+            context="Menu|Color|Adjust Color|">Brighter</property>
+          <property name="tooltip" translatable="yes"
+            >Increase color brightness</property>
+          <signal name="activate" handler="brighter_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="Darker">
+          <property name="label" translatable="yes"
+            context="Menu|Color|Adjust Color|">Darker</property>
+          <property name="tooltip" translatable="yes"
+            >Decrease color brightness</property>
+          <signal name="activate" handler="darker_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="IncreaseHue">
+          <property name="label" translatable="yes"
+            context="Menu|Color|Adjust Color|">Hue Anticlockwise</property>
+          <property name="tooltip" translatable="yes"
+            >Rotate color hue anticlockwise</property>
+          <signal name="activate" handler="increase_hue_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="DecreaseHue">
+          <property name="label" translatable="yes"
+            context="Menu|Color|Adjust Color|">Hue Clockwise</property>
+          <property name="tooltip" translatable="yes"
+            >Rotate color hue clockwise</property>
+          <signal name="activate" handler="decrease_hue_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="Purer">
+          <property name="label" translatable="yes"
+            context="Menu|Color|Adjust Color|">Purer</property>
+          <property name="tooltip" translatable="yes"
+            >Increase color saturation</property>
+          <signal name="activate" handler="purer_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="Grayer">
+          <property name="label" translatable="yes"
+            context="Menu|Color|Adjust Color|">Grayer</property>
+          <property name="tooltip" translatable="yes"
+            >Decrease color saturation</property>
+          <signal name="activate" handler="grayer_cb"/>
+        </object>
+      </child>
+      <!-- Resetting -->
+      <child>
+        <object class="GtkAction" id="BrushReload">
+          <property name="label" translatable="yes"
+            context="Menu|Brush|">Reload Brush Settings</property>
+          <property name="tooltip" translatable="yes"
+            >Restore all brush settings to the current brush's saved values</property>
+          <signal name="activate" handler="brush_reload_cb"/>
+          <property name="icon-name">mypaint-clear-all-symbolic</property>
+        </object>
+      </child>
+      <!-- Context (saving and restoring bushes and colours) -->
+      <!-- More actions are added by doc.init_context_actions() -->
+      <child>
+        <object class="GtkAction" id="PickContext">
+          <property name="label" translatable="yes"
+            context="Menu|Brush|">Pick Stroke and Layer</property>
+          <property name="tooltip" translatable="yes"
+            >Pick brushstroke: settings and layer</property>
+          <property name="icon-name">mypaint-target-symbolic</property>
+          <signal name="activate" handler="pick_context_cb"/>
+        </object>
+        <accelerator key="w"/>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="ContextRestoreColor">
+          <property name="label" translatable="yes"
+            context="Menu|Brush|Shortcut Keys|">Restore Color</property>
+          <signal name="activate" handler="context_toggle_color_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ContextStore">
+          <property name="label" translatable="yes"
+            context="Menu|Brush|Shortcut Keys|"
+            >Save to Most Recent</property>
+          <property name="tooltip" translatable="yes"
+            >Save brush to the most recent shortcut</property>
+          <signal name="activate" handler="context_cb"/>
+        </object>
+        <accelerator key="q"/>
+      </child>
+      <!-- Layers stack manipulation -->
+      <child>
+        <object class="GtkAction" id="ClearLayer">
+          <property name="icon-name">mypaint-clear-all-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">Clear</property>
+          <property name="tooltip" translatable="yes"
+            >Clear the current layer</property>
+          <signal name="activate" handler="clear_layer_cb"/>
+        </object>
+        <accelerator key="Delete"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="TrimLayer">
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">Trim to Frame</property>
+          <property name="tooltip" translatable="yes"
+            >Trim parts of the current layer outside the frame</property>
+          <signal name="activate" handler="trim_layer_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="CopyLayer">
+          <property name="icon-name">mypaint-copy-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">Copy</property>
+          <property name="tooltip" translatable="yes"
+            >Copy the current layer to the clipboard</property>
+          <signal name="activate" handler="copy_cb"/>
+        </object>
+        <accelerator key="c" modifiers="GDK_CONTROL_MASK"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="PasteLayer">
+          <property name="icon-name">mypaint-paste-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">Paste</property>
+          <property name="tooltip" translatable="yes"
+            >Replaces the layer with the clipboard's contents</property>
+          <signal name="activate" handler="paste_cb"/>
+        </object>
+        <accelerator key="v" modifiers="GDK_CONTROL_MASK"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="PickLayer">
+          <property name="label" translatable="yes"
+            context="Menu|Layer|Go to Layer|">At Cursor</property>
+          <property name="tooltip" translatable="yes"
+            >Choose a layer by picking a brushstroke on it</property>
+          <signal name="activate" handler="pick_layer_cb"/>
+        </object>
+        <accelerator key="h"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="SelectLayerAbove">
+          <property name="icon-name">mypaint-layer-above-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Layer|Go to Layer|">Above</property>
+          <property name="tooltip" translatable="yes"
+            >Go one layer up in the layers stack</property>
+          <signal name="activate" handler="select_layer_above_cb"/>
+        </object>
+        <accelerator key="Page_Up"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="SelectLayerBelow">
+          <property name="icon-name">mypaint-layer-below-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Layer|Go to Layer|">Below</property>
+          <property name="tooltip" translatable="yes"
+            >Go one layer down in the layers stack</property>
+          <signal name="activate" handler="select_layer_below_cb"/>
+        </object>
+        <accelerator key="Page_Down"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="NewLayerFG">
+          <property name="icon-name">mypaint-layer-new-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">New (above)</property>
+          <property name="tooltip" translatable="yes"
+            >Add a new layer above the current layer</property>
+          <signal name="activate" handler="new_layer_cb"/>
+        </object>
+        <accelerator key="Page_Up" modifiers="GDK_CONTROL_MASK"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="NewLayerBG">
+          <property name="icon-name">mypaint-layer-new-below-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">New (below)</property>
+          <property name="tooltip" translatable="yes"
+            >Add a new layer below the current layer</property>
+          <signal name="activate" handler="new_layer_cb"/>
+        </object>
+        <accelerator key="Page_Down" modifiers="GDK_CONTROL_MASK"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="MergeLayerDown">
+          <property name="icon-name">mypaint-layer-merge-down-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">Merge Down</property>
+          <property name="tooltip" translatable="yes"
+            >Merge layer with the one beneath it</property>
+          <signal name="activate" handler="merge_layer_down_cb"/>
+        </object>
+        <accelerator key="Delete" modifiers="GDK_CONTROL_MASK"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="MergeVisibleLayers">
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">Merge Visible</property>
+          <property name="tooltip" translatable="yes"
+            >Merge all visible layers into a new layer</property>
+          <signal name="activate" handler="merge_visible_layers_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="RemoveLayer">
+          <property name="icon-name">mypaint-layer-delete-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">Delete</property>
+          <property name="tooltip" translatable="yes"
+            >Delete the current layer</property>
+          <signal name="activate" handler="remove_layer_cb"/>
+        </object>
+        <accelerator key="Delete" modifiers="GDK_SHIFT_MASK"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="NormalizeLayerMode">
+          <property name="label" translatable="yes"
+            context="Menu|Layer">Normalize Layer Mode</property>
+          <signal name="activate" handler="normalize_layer_mode_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="IncreaseLayerOpacity">
+          <property name="label" translatable="yes"
+            context="Menu|Layer|Opacity|">Increase</property>
+          <signal name="activate" handler="layer_increase_opacity"/>
+        </object>
+        <accelerator key="p" modifiers="GDK_SHIFT_MASK"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="DecreaseLayerOpacity">
+          <property name="label" translatable="yes"
+            context="Menu|Layer|Opacity|">Decrease</property>
+          <signal name="activate" handler="layer_decrease_opacity"/>
+        </object>
+        <accelerator key="o" modifiers="GDK_SHIFT_MASK"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="RaiseLayerInStack">
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">Raise</property>
+          <property name="tooltip" translatable="yes"
+            >Raise the current layer one step in the layers stack</property>
+          <property name="icon-name">mypaint-layer-raise-symbolic</property>
+          <signal name="activate" handler="reorder_layer_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="LowerLayerInStack">
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">Lower</property>
+          <property name="tooltip" translatable="yes"
+            >Lower the current layer one step in the layers stack</property>
+          <property name="icon-name">mypaint-layer-lower-symbolic</property>
+          <signal name="activate" handler="reorder_layer_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="DuplicateLayer">
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">Duplicate</property>
+          <property name="tooltip" translatable="yes"
+            >Make an exact duplicate of the current layer</property>
+          <property name="icon-name">mypaint-duplicate-symbolic</property>
+          <signal name="activate" handler="duplicate_layer_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="RenameLayer">
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">Rename...</property>
+          <property name="tooltip" translatable="yes"
+            >Enter a new name for the current layer</property>
+          <signal name="activate" handler="rename_layer_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="LayerLockedToggle">
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">Locked</property>
+          <property name="tooltip" translatable="yes"
+            >The current layer's locked state: locked layers cannot be drawn to</property>
+          <signal name="activate" handler="layer_lock_toggle_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="LayerVisibleToggle">
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">Visible</property>
+          <property name="tooltip" translatable="yes"
+            >The current layer's visibility state</property>
+          <signal name="activate" handler="layer_visible_toggle_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="ShowBackgroundToggle">
+          <property name="label" translatable="yes"
+            context="Menu|View|">Show Background</property>
+          <property name="tooltip" translatable="yes"
+            >Show the background layer</property>
+          <signal name="activate" handler="show_background_toggle_cb"/>
+        </object>
+      </child>
+
+      <!-- View manipulation -->
+      <child>
+        <object class="GtkAction" id="ResetView">
+          <property name="icon-name">mypaint-view-100-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|View|">Reset and Center</property>
+          <property name="tooltip" translatable="yes"
+            >Reset Zoom, Rotation and Mirroring, and recenter the document</property>
+          <signal name="activate" handler="reset_view_cb"/>
+        </object>
+        <accelerator key="F12"/>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="FitView">
+          <property name="icon-name">mypaint-view-fit-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|View|">Fit</property>
+          <property name="tooltip" translatable="yes"
+              >View scaled to fit the document</property>
+          <signal name="activate" handler="fit_view_toggled_cb"/>
+        </object>
+        <accelerator key="F10"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="ResetMenu">
+          <property name="label" translatable="yes"
+            context="Menu|View|">Reset</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ResetZoom">
+          <property name="icon-name">mypaint-view-100-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|View|Reset|">Zoom</property>
+          <signal name="activate" handler="reset_view_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ResetRotation">
+          <property name="label" translatable="yes"
+            context="Menu|View|Reset|">Rotation</property>
+          <signal name="activate" handler="reset_view_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ResetMirror">
+          <property name="label" translatable="yes"
+            context="Menu|View|Reset|">Mirror</property>
+          <signal name="activate" handler="reset_view_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ZoomIn">
+          <property name="icon-name">mypaint-view-zoom-more-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|View|Adjust View|">Zoom In</property>
+          <property name="tooltip" translatable="yes"
+            >Increase magnification</property>
+          <signal name="activate" handler="zoom_cb"/>
+        </object>
+        <accelerator key="period"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="ZoomOut">
+          <property name="icon-name">mypaint-view-zoom-less-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|View|Adjust View|">Zoom Out</property>
+          <property name="tooltip" translatable="yes"
+            >Decrease magnification</property>
+          <signal name="activate" handler="zoom_cb"/>
+        </object>
+        <accelerator key="comma"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="RotateLeft">
+          <property name="icon-name"
+                    >mypaint-view-rotate-anticlockwise-symbolic</property>
+          <property name="label" translatable="yes"
+                    context="Menu|View|Adjust View|"
+                    >Rotate Counterclockwise</property>
+          <property name="tooltip" translatable="yes"
+              >Rotate the view counterclockwise</property>
+          <signal name="activate" handler="rotate_cb"/>
+        </object>
+        <accelerator key="Left" modifiers="GDK_CONTROL_MASK"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="RotateRight">
+          <property name="icon-name"
+                    >mypaint-view-rotate-clockwise-symbolic</property>
+          <property name="label" translatable="yes"
+                    context="Menu|View|Adjust View|"
+                    >Rotate Clockwise</property>
+          <property name="tooltip" translatable="yes"
+                    >Rotate the view clockwise</property>
+          <signal name="activate" handler="rotate_cb"/>
+        </object>
+        <accelerator key="Right" modifiers="GDK_CONTROL_MASK"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="MirrorHorizontal">
+          <property name="icon-name"
+                    >mypaint-view-mirror-horizontal-symbolic</property>
+          <property name="label" translatable="yes"
+                    context="Menu|View|Adjust View|"
+                    >Mirror Horizontal</property>
+          <property name="tooltip" translatable="yes"
+                    >Flip the view left to right</property>
+          <signal name="activate" handler="mirror_horizontal_cb"/>
+        </object>
+        <accelerator key="i"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="MirrorVertical">
+          <property name="icon-name"
+                    >mypaint-view-mirror-vertical-symbolic</property>
+          <property name="label" translatable="yes"
+                    context="Menu|View|Adjust View|"
+                    >Mirror Vertical</property>
+          <property name="tooltip" translatable="yes"
+                    >Flip the view upside-down</property>
+          <signal name="activate" handler="mirror_vertical_cb"/>
+        </object>
+        <accelerator key="u"/>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="SoloLayer">
+          <property name="label" translatable="yes"
+            context="Menu|View|">Layer Solo</property>
+          <signal name="toggled" handler="current_layer_solo_toggled_cb"/>
+        </object>
+        <accelerator key="Home"/>
+      </child>
+      <!-- Editing modes -->
+      <child>
+        <object class="GtkToggleAction" id="Symmetry">
+          <property name="icon-name">mypaint-symmetry-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Edit|">Symmetrical Painting</property>
+          <property name="tooltip" translatable="yes"
+            >Mirrors all strokes drawn around the vertical axis</property>
+          <signal name="activate" handler="symmetry_action_toggled_cb"/>
+        </object>
+        <accelerator key="i" modifiers="GDK_SHIFT_MASK"/>
+      </child>
+      <!-- Debugging toggles -->
+      <child>
+        <object class="GtkToggleAction" id="PrintInputs">
+          <property name="label" translatable="yes"
+            context="Menu|Help|Debug|">Print Brush Input Values to Console</property>
+          <signal name="activate" handler="print_inputs_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="VisualizeRendering">
+          <property name="label" translatable="yes"
+            context="Menu|Help|Debug|">Visualize Rendering</property>
+          <property name="tooltip" translatable="yes"
+            >Show rendering updates on-screen, for debugging</property>
+          <signal name="activate" handler="visualize_rendering_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="NoDoubleBuffereing">
+          <property name="label" translatable="yes"
+            context="Menu|Help|Debug|">Disable GTK Double Buffering</property>
+          <signal name="activate" handler="no_double_buffering_cb"/>
+        </object>
+      </child>
+    </object><!-- /DocumentActions -->
+  </child>
+  <child>
+    <object class="GtkActionGroup" id="BrushModifierActions">
+      <!-- Brush blend modes: defined in gui/brushmodifier.py -->
+      <child>
+        <object class="GtkAction" id="BlendMode"><!-- Menu -->
+          <property name="icon_name">mypaint-brush-blend-modes-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Brush|">Blend Mode</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="BlendModeNormal">
+          <property name="icon_name">mypaint-paint-over-symbolic</property>
+          <property name="label" translatable="yes"
+              context="Menu|Brush|Blend Mode|">Paint Over</property>
+          <property name="tooltip" translatable="yes"
+              >Normal brush application</property>
+          <signal name="activate" handler="blend_mode_normal_cb"/>
+        </object>
+        <accelerator key="n"/>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="BlendModeEraser">
+          <property name="icon_name">mypaint-eraser-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Brush|Blend Mode|">Eraser</property>
+          <property name="tooltip" translatable="yes"
+            >Erase using the current brush</property>
+          <signal name="activate" handler="blend_mode_eraser_cb"/>
+        </object>
+        <accelerator key="e"/>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="BlendModeLockAlpha">
+          <property name="icon_name"
+            >mypaint-lock-alpha-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Brush|Blend Mode|">Lock Alpha</property>
+          <property name="tooltip" translatable="yes"
+            >Paint without affecting opacity</property>
+          <signal name="activate" handler="blend_mode_lock_alpha_cb"/>
+        </object>
+        <accelerator key="l" modifiers="GDK_SHIFT_MASK"/>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="BlendModeColorize">
+          <property name="icon_name"
+            >mypaint-colorize-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Brush|Blend Mode|">Colorize</property>
+          <property name="tooltip" translatable="yes"
+            >Paint colors without affecting brightness or opacity</property>
+          <signal name="activate" handler="blend_mode_colorize_cb"/>
+        </object>
+        <accelerator key="k" modifiers="GDK_SHIFT_MASK"/>
+      </child>
+    </object><!-- /BrushModifierActions -->
+  </child>
+  <child>
+    <object class="GtkActionGroup" id="WindowActions">
+      <!-- Actions affecting the application window and document view -->
+      <!-- Menu: File -->
+      <child>
+        <object class="GtkAction" id="FileMenu">
+          <property name="label" translatable="yes"
+            context="Menu|">File</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="Quit">
+          <property name="label" translatable="yes"
+            context="Menu|File|">Quit</property>
+          <property name="icon-name">mypaint-close-symbolic</property>
+          <signal name="activate" handler="quit_cb"/>
+        </object>
+        <accelerator key="q" modifiers="GDK_CONTROL_MASK"/>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="FrameToggle">
+          <property name="label" translatable="yes"
+            context="Menu|File|">Frame Enabled</property>
+          <property name="icon-name">mypaint-frame-symbolic</property>
+          <signal name="activate" handler="toggle_frame_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="EditMenu">
+          <property name="label" translatable="yes"
+            context="Menu|">Edit</property>
+        </object>
+      </child>
+      <!-- Menu: Color -->
+      <child>
+        <object class="GtkAction" id="ColorMenu">
+          <property name="label" translatable="yes"
+            context="Menu|">Color</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ColorAdjustmentsMenu">
+          <property name="label" translatable="yes"
+            context="Menu|Color|">Adjust Color</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ColorHistoryPopup">
+          <property name="label" translatable="yes"
+            context="Menu|Color|">Color History</property>
+          <signal name="activate" handler="popup_cb"/>
+        </object>
+        <accelerator key="x"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="ColorChangerCrossedBowlPopup">
+          <property name="label" translatable="yes"
+            context="Menu|Color|">Change Color</property>
+          <property name="tooltip" translatable="yes"
+            >Color changer popup (crossed bowl)</property>
+          <signal name="activate" handler="popup_cb"/>
+        </object>
+        <accelerator key="v"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="ColorChangerWashPopup">
+          <property name="label" translatable="yes"
+            context="Menu|Color|">Change Color (wash)</property>
+          <property name="tooltip" translatable="yes"
+            >Color changer popup (wash)</property>
+          <signal name="activate" handler="popup_cb"/>
+        </object>
+        <accelerator key="c"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="ColorRingPopup">
+          <property name="label" translatable="yes"
+            context="Menu|Color|">Change Color (ring)</property>
+          <property name="tooltip" translatable="yes"
+            >Color changer popup (concentric rings)</property>
+          <signal name="activate" handler="popup_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ColorDetailsDialog">
+          <property name="label" translatable="yes"
+            context="Menu|Color|">Color Details</property>
+          <property name="tooltip" translatable="yes"
+            >Color details dialog with text entry</property>
+          <signal name="activate" handler="color_details_dialog_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="PaletteNext">
+          <property name="label" translatable="yes"
+            context="Menu|Color">Next Palette Color</property>
+          <property name="tooltip" translatable="yes"
+            >Next color in the palette</property>
+          <signal name="activate" handler="palette_next_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="PalettePrev">
+          <property name="label" translatable="yes"
+            context="Menu|Color|">Previous Palette Color</property>
+          <property name="tooltip" translatable="yes"
+            >Previous color in the palette</property>
+          <signal name="activate" handler="palette_prev_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="PaletteAddCurrentColor">
+          <property name="label" translatable="yes"
+            context="Menu|Color|">Add Color to Palette</property>
+          <property name="tooltip" translatable="yes"
+            >Append the current color to the palette</property>
+          <signal name="activate" handler="palette_add_current_color_cb"/>
+        </object>
+      </child>
+      <!-- Layer and Scratchpad menus -->
+      <child>
+        <object class="GtkAction" id="LayerMenu">
+          <property name="label" translatable="yes"
+            context="Menu|">Layer</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="LayerOpacityMenu">
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">Opacity</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="LayerGoMenu">
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">Go to Layer</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ScratchMenu">
+          <property name="label" translatable="yes"
+            context="Menu|">Scratchpad</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ScratchNew">
+          <property name="label" translatable="yes"
+            context="Menu|Scratchpad|">New</property>
+          <property name="icon-name">mypaint-document-new-symbolic</property>
+          <signal name="activate" handler="new_scratchpad_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ScratchLoad">
+          <property name="label" translatable="yes"
+            context="Menu|Scratchpad|">Open...</property>
+          <property name="icon-name">mypaint-document-open-symbolic</property>
+          <signal name="activate" handler="load_scratchpad_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ScratchSaveNow">
+          <property name="label" translatable="yes"
+            context="Menu|Scratchpad|">Save</property>
+          <property name="icon-name">mypaint-document-save-symbolic</property>
+          <signal name="activate" handler="save_current_scratchpad_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ScratchSaveAs">
+          <property name="label" translatable="yes"
+            context="Menu|Scratchpad|">Save As...</property>
+          <property name="icon-name">mypaint-document-save-as-symbolic</property>
+          <signal name="activate" handler="save_as_scratchpad_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ScratchRevert">
+          <property name="label" translatable="yes"
+            context="Menu|Scratchpad|">Revert</property>
+          <property name="icon-name">mypaint-document-revert-symbolic</property>
+          <signal name="activate" handler="revert_current_scratchpad_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ScratchSaveAsDefault">
+          <property name="label" translatable="yes"
+            context="Menu|Scratchpad|">Save as Default</property>
+          <signal name="activate" handler="save_scratchpad_as_default_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ScratchClearDefault">
+          <property name="label" translatable="yes"
+            context="Menu|Scratchpad|">Clear Default</property>
+          <signal name="activate" handler="clear_default_scratchpad_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ScratchCopyBackground">
+          <property name="label" translatable="yes"
+           context="Menu|Scratchpad|">Use Main Background</property>
+          <signal name="activate" handler="scratchpad_copy_background_cb"/>
+        </object>
+      </child>
+      <!-- Scratchpad palette-rendering submenu actions -->
+      <!-- Diminishing as this fnctionality is moved to the editable palette code -->
+      <child>
+        <object class="GtkAction" id="ScratchDrawSatPalette">
+          <property name="label" translatable="yes"
+            context="Menu|Scratchpad|">Draw Saturation Spread</property>
+          <signal name="activate" handler="draw_sat_spectrum_cb"/>
+        </object>
+      </child>
+      <!-- Brush menu actions -->
+      <child>
+        <object class="GtkAction" id="BrushMenu">
+          <property name="label" translatable="yes"
+            context="Menu|Brush|">Brush</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ContextMenu">
+          <property name="label" translatable="yes"
+            context="Menu|Brush|">Shortcut Keys</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ContextHelp">
+          <property name="label" translatable="yes"
+            context="Menu|Brush|Shortcut Keys|">Help</property>
+          <property name="icon-name">mypaint-help-symbolic</property>
+          <signal name="activate" handler="show_infodialog_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="BrushChooserPopup">
+          <property name="label" translatable="yes"
+            context="Menu|Brush|">Change Brush</property>
+          <property name="icon-name">mypaint-brushes-symbolic</property>
+          <signal name="activate" handler="brush_chooser_popup_cb"/>
+        </object>
+        <accelerator key="b"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="DownloadBrushPack">
+          <property name="label" translatable="yes"
+            context="Menu|Brush|">Get More Brushes...</property>
+          <signal name="activate" handler="download_brush_pack_cb"/>
+          <property name="icon-name">mypaint-globe-symbolic</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ImportBrushPack">
+          <property name="label" translatable="yes"
+            context="Menu|Brush|">Import Brushes...</property>
+          <property name="icon-name">mypaint-document-open-symbolic</property>
+          <signal name="activate" handler="import_brush_pack_cb"/>
+        </object>
+      </child>
+      <!-- Help/documentation menu -->
+      <child>
+        <object class="GtkAction" id="HelpMenu">
+          <property name="label" translatable="yes"
+            context="Menu|Help|">Help</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="Docu">
+          <property name="label" translatable="yes"
+            context="Menu|Help|">Where is the Documentation?</property>
+          <property name="icon-name">mypaint-info-symbolic</property>
+          <signal name="activate" handler="show_infodialog_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ShortcutHelp">
+          <property name="label" translatable="yes"
+            context="Menu|Help|">Change the Keyboard Shortcuts?</property>
+          <property name="icon-name">mypaint-info-symbolic</property>
+          <signal name="activate" handler="show_infodialog_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="About">
+          <property name="label" translatable="yes"
+            context="Menu|Help|">About MyPaint</property>
+          <property name="icon-name">mypaint-about-symbolic</property>
+          <signal name="activate" handler="about_cb"/>
+        </object>
+      </child>
+      <!-- Debugging menu -->
+      <child>
+        <object class="GtkAction" id="DebugMenu">
+          <property name="label" translatable="yes"
+            context="Menu|Help|">Debug</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="PrintMemoryLeak">
+          <property name="label" translatable="yes"
+            context="Menu|Help|Debug|">Print Memory Leak Info to Console (Slow!)</property>
+          <signal name="activate" handler="print_memory_leak_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="RunGarbageCollector">
+          <property name="label" translatable="yes"
+            context="Menu|Help|Debug|">Run Garbage Collector Now</property>
+          <signal name="activate" handler="run_garbage_collector_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="StartProfiling">
+          <!-- FIXME: convert to a ToggleAction -->
+          <property name="label" translatable="yes"
+            context="Menu|Help|Debug|">Start/Stop Python Profiling (cProfile)</property>
+          <property name="icon-name">mypaint-run-symbolic</property>
+          <signal name="activate" handler="start_profiling_cb"/>
+        </object>
+      </child>
+      <!-- View menu and its submenus -->
+      <child>
+        <object class="GtkAction" id="ViewMenu">
+          <property name="label" translatable="yes"
+             context="Menu|">View</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="FeedbackMenu">
+          <property name="label" translatable="yes"
+            context="Menu|View|">Feedback</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ViewAdjustmentsMenu">
+          <property name="label" translatable="yes"
+           context="Menu|View|">Adjust View</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="ShowPopupMenu">
+          <property name="label" translatable="yes"
+            context="Menu|View|">Popup Menu</property>
+          <signal name="activate" handler="popupmenu_show_cb"/>
+        </object>
+        <accelerator key="Menu"/>
+      </child>
+      <child>
+        <object class="GtkAction" id="Fullscreen">
+          <property name="icon-name">mypaint-fullscreen</property>
+          <signal name="activate" handler="fullscreen_cb"/>
+        </object>
+        <accelerator key="F11"/>
+      </child>
+      <!-- Subwindow hiding and showing -->
+      <child>
+        <object class="GtkToggleAction" id="PreferencesWindow">
+          <property name="icon-name">mypaint-options-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Edit|">Preferences</property>
+          <signal name="activate" handler="toggle_window_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="InputTestWindow">
+          <property name="label" translatable="yes">Test Input Devices</property>
+          <signal name="activate" handler="toggle_window_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="FrameWindow">
+          <property name="label" translatable="yes">Document Frame...</property>
+          <property name="icon-name">mypaint-frame-symbolic</property>
+          <property name="tooltip"
+            translatable="yes">Set and adjust a frame for the canvas</property>
+          <signal name="activate" handler="toggle_window_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="LayersTool">
+          <property name="icon-name">mypaint-layers-symbolic</property>
+          <property name="label" translatable="yes">Layers Window</property>
+          <property name="tooltip"
+            translatable="yes">Arrange layers, or assign layer effects</property>
+          <signal name="activate" handler="toggle_window_cb"/>
+        </object>
+        <accelerator key="l"/>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="BackgroundWindow">
+          <property name="icon-name">mypaint-document-properties-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">Choose Background...</property>
+          <property name="tooltip" translatable="yes"
+            >Choose a background image</property>
+          <signal name="activate" handler="toggle_window_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="BrushEditorWindow">
+          <property name="icon-name">mypaint-options-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Brush|">Edit Brush Settings</property>
+          <property name="tooltip" translatable="yes"
+            >Edit the active brush's settings</property>
+          <signal name="activate" handler="toggle_window_cb"/>
+        </object>
+        <accelerator key="b" modifiers="GDK_CONTROL_MASK"/>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="BrushIconEditorWindow">
+          <property name="icon-name">mypaint-options-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Brush|">Edit Icon</property>
+          <property name="tooltip" translatable="yes"
+            >Edit brush icons</property>
+          <signal name="activate" handler="toggle_window_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="HCYWheelTool">
+          <property name="icon-name">mypaint-tool-hcywheel</property>
+          <property name="label" translatable="yes"
+            context="Menu|Color|">HCY Wheel</property>
+          <property name="tooltip" translatable="yes"
+            >Set the color using cylindrical hue/chroma/luma space.
+The circular slices are equiluminant.</property>
+          <signal name="activate" handler="toggle_window_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="PaletteTool">
+          <property name="icon-name">mypaint-tool-color-palette</property>
+          <property name="label" translatable="yes"
+            context="Menu|Color|">Palette</property>
+          <property name="tooltip" translatable="yes"
+            >Set the color from a loadable, editable palette.</property>
+          <signal name="activate" handler="toggle_window_cb"/>
+        </object>
+        <accelerator key="c" modifiers="GDK_SHIFT_MASK"/>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="HSVWheelTool">
+          <property name="icon-name">mypaint-tool-hsvwheel</property>
+          <property name="label" translatable="yes"
+            context="Menu|Color|">HSV Wheel</property>
+          <property name="tooltip" translatable="yes"
+            >Saturation and Value colour changer.</property>
+          <signal name="activate" handler="toggle_window_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="HSVTriangleTool">
+          <property name="icon-name">mypaint-tool-color-triangle</property>
+          <property name="label" translatable="yes"
+            context="Menu|Color|">HSV Triangle</property>
+          <property name="tooltip" translatable="yes"
+            >The standard GTK color selector.</property>
+          <signal name="activate" handler="toggle_window_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="HSVCubeTool">
+          <property name="icon-name">mypaint-tool-hsvcube</property>
+          <property name="label" translatable="yes"
+            context="Menu|Color|">HSV Cube</property>
+          <property name="tooltip" translatable="yes"
+            >An HSV cube which can be rotated to show different planar slices.</property>
+          <signal name="activate" handler="toggle_window_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="ComponentSlidersTool">
+          <property name="icon-name">mypaint-tool-component-sliders</property>
+          <property name="label" translatable="yes"
+            context="Menu|Color|">Component Sliders</property>
+          <property name="tooltip" translatable="yes"
+            >Adjust individual components of the colour.</property>
+          <signal name="activate" handler="toggle_window_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="ScratchpadTool">
+          <property name="icon-name">mypaint-scratchpad-symbolic</property>
+          <property name="label" translatable="yes"
+            context="Menu|Scratchpad|">Scratchpad Window</property>
+          <property name="tooltip" translatable="yes"
+            >Mix colors and make sketches on separate scrap pages</property>
+          <signal name="activate" handler="toggle_window_cb"/>
+        </object>
+        <accelerator key="s" modifiers="GDK_SHIFT_MASK"/>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="PreviewTool">
+          <property name="icon-name">mypaint-view-symbolic</property>
+          <property name="label" translatable="yes">Preview</property>
+          <property name="tooltip" translatable="yes"
+            >Show preview of the whole drawing area</property>
+          <signal name="activate" handler="toggle_window_cb"/>
+        </object>
+        <accelerator key="p" modifiers="GDK_SHIFT_MASK"/>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="ModeOptionsTool">
+          <property name="icon-name">mypaint-options-symbolic</property>
+          <property name="label" translatable="yes">Options for Current Mode</property>
+          <property name="tooltip" translatable="yes"
+            >Allows options to be set for the current mode</property>
+          <signal name="activate" handler="toggle_window_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="HistoryPanel">
+          <property name="label" translatable="yes"
+            >Recent Brushes &amp; Colors</property>
+          <property name="icon-name">document-open-recent</property>
+          <property name="tooltip"
+            translatable="yes">Recently used</property>
+          <signal name="activate" handler="toggle_window_cb"/>
+        </object>
+      </child>
+
+      <child>
+        <object class="GtkToggleAction" id="FullscreenAutohide">
+          <property name="label" translatable="yes"
+            context="Menu|View|">Hide Controls in Fullscreen</property>
+          <property name="tooltip" translatable="yes"
+            >Automatically hide the user interface in fullscreen.</property>
+          <signal name="toggled" handler="fullscreen_autohide_toggled_cb"/>
+        </object>
+        <accelerator key="Tab"/>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="ToggleScaleFeedback">
+          <property name="label" translatable="yes"
+            context="Menu|View|Feedback|">Zoom Level</property>
+          <property name="tooltip" translatable="yes"
+            >Show the zoom level when zooming in or out</property>
+          <signal name="activate" handler="toggle_scale_feedback_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="ToggleLastPosFeedback">
+          <property name="label" translatable="yes"
+            context="Menu|View|Feedback|">Last Painting Position</property>
+          <property name="tooltip" translatable="yes"
+            >Show where strokes end</property>
+          <signal name="activate" handler="toggle_last_pos_feedback_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkToggleAction" id="ToggleSymmetryFeedback">
+          <property name="label" translatable="yes"
+            context="Menu|View|Feedback|">Axis of Symmetry</property>
+          <property name="tooltip" translatable="yes"
+            >Show the symmetry axis</property>
+          <signal name="activate" handler="toggle_symmetry_feedback_cb"/>
+        </object>
+      </child>
+    </object><!-- /WindowActions -->
+  </child>
+  <child>
+    <object class="GtkActionGroup" id="ModeStackActions">
+      <!-- Actions which affect the ModeStack of the primary document -->
+      <child>
+        <object class="GtkAction" id="CurrentModeMenu">
+          <property name="label" translatable="yes"
+            context="Menu|Edit|">Current Mode</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkRadioAction" id="SwitchableFreehandMode">
+          <property name="label" translatable="yes"
+            context="Menu|Edit|Current Mode|">Freehand Drawing</property>
+          <property name="short-label" translatable="yes"
+            context="Toolbar|">Freehand</property>
+          <property name="icon-name">mypaint-brush-symbolic</property>
+          <property name="tooltip" translatable="yes"
+            >Draw and paint freely, without geometric constraints</property>
+          <property name="value">1</property>
+          <property name="current-value">1</property>
+          <signal name="changed" handler="mode_radioaction_changed_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="FlipSwitchableFreehandMode">
+          <property name="label" translatable="yes"
+            context="Menu|Edit|">Freehand Drawing</property>
+          <property name="icon-name">mypaint-brush-symbolic</property>
+          <signal name="activate" handler="mode_flip_action_activated_cb"/>
+        </object>
+        <accelerator key="p"/><!-- "pencil", or "paint" -->
+      </child>
+      <child>
+        <object class="GtkRadioAction" id="PanViewMode">
+          <property name="label" translatable="yes"
+            context="Menu|Edit|Current Mode|">Scroll View</property>
+          <property name="short-label" translatable="yes"
+            context="Toolbar|">Scroll</property>
+          <property name="icon-name">mypaint-view-pan-symbolic</property>
+          <property name="tooltip" translatable="yes"
+            >View the canvas at a different position</property>
+          <property name="group">SwitchableFreehandMode</property>
+          <property name="value">2</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="FlipPanViewMode">
+          <property name="label" translatable="yes"
+            context="Menu|View|">Scroll</property>
+          <property name="icon-name">mypaint-view-pan-symbolic</property>
+          <signal name="activate" handler="mode_flip_action_activated_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkRadioAction" id="RotateViewMode">
+          <property name="label" translatable="yes"
+            context="Menu|Edit|Current Mode|">Rotate View</property>
+          <property name="short-label" translatable="yes"
+            context="Toolbar|">Rotate</property>
+          <property name="icon-name">mypaint-view-rotate-symbolic</property>
+          <property name="tooltip" translatable="yes"
+            >View the canvas at a different angle</property>
+          <property name="group">PanViewMode</property>
+          <property name="value">3</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="FlipRotateViewMode">
+          <property name="label" translatable="yes"
+            context="Menu|View|">Rotate</property>
+          <property name="icon-name">mypaint-view-rotate-symbolic</property>
+          <signal name="activate" handler="mode_flip_action_activated_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkRadioAction" id="ZoomViewMode">
+          <property name="label" translatable="yes"
+            context="Menu|Edit|Current Mode|">Zoom View</property>
+          <property name="short-label" translatable="yes"
+            context="Toolbar|">Zoom</property>
+          <property name="icon-name">mypaint-view-zoom-symbolic</property>
+          <property name="tooltip" translatable="yes"
+            >View the canvas at a different zoom</property>
+          <property name="group">RotateViewMode</property>
+          <property name="value">3</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="FlipZoomViewMode">
+          <property name="label" translatable="yes"
+            context="Menu|View|">Zoom</property>
+          <property name="icon-name">mypaint-view-zoom-symbolic</property>
+          <signal name="activate" handler="mode_flip_action_activated_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkRadioAction" id="StraightMode">
+          <property name="label" translatable="yes"
+            context="Menu|Edit|Current Mode|">Lines and Curves</property>
+          <property name="short-label" translatable="yes"
+            context="Toolbar|">Lines</property>
+          <property name="icon-name">mypaint-lines-and-curves-symbolic</property>
+          <property name="tooltip" translatable="yes"
+              >Draw straight or curved lines</property>
+          <property name="group">ZoomViewMode</property>
+          <property name="value">4</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="FlipStraightMode">
+          <property name="label" translatable="yes"
+            context="Menu|Edit|">Lines and Curves</property>
+          <property name="icon-name">mypaint-lines-and-curves-symbolic</property>
+          <signal name="activate" handler="mode_flip_action_activated_cb"/>
+        </object>
+        <accelerator key="k"/> <!-- Lines and, um, Kurves. -->
+      </child>
+      <child>
+        <object class="GtkRadioAction" id="SequenceMode">
+          <property name="label" translatable="yes"
+            context="Menu|Edit|Current Mode|">Connected Lines</property>
+          <property name="short-label" translatable="yes"
+            context="Toolbar|">Line Seq.</property>
+          <property name="icon-name">mypaint-line-sequence-symbolic</property>
+          <property name="tooltip" translatable="yes"
+            >Draw sequences of straight or curved lines</property>
+          <property name="group">StraightMode</property>
+          <property name="value">5</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="FlipSequenceMode">
+          <property name="label" translatable="yes"
+            context="Menu|Edit|">Connected Lines</property>
+          <property name="icon-name">mypaint-line-sequence-symbolic</property>
+          <signal name="activate" handler="mode_flip_action_activated_cb"/>
+        </object>
+        <accelerator key="j"/> <!-- next to k, on my keyboard -->
+      </child>
+      <child>
+        <object class="GtkRadioAction" id="EllipseMode">
+          <property name="label" translatable="yes"
+            context="Menu|Edit|Current Mode|">Ellipses and Circles</property>
+          <property name="short-label" translatable="yes"
+            context="Toolbar|">Ellipse</property>
+          <property name="icon-name">mypaint-ellipse-symbolic</property>
+          <property name="tooltip" translatable="yes"
+            >Draw whole circles and ellipses</property>
+          <property name="group">SequenceMode</property>
+          <property name="value">6</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="FlipEllipseMode">
+          <property name="label" translatable="yes"
+            context="Menu|Edit|">Ellipses and Circles</property>
+          <property name="icon-name">mypaint-ellipse-symbolic</property>
+          <signal name="activate" handler="mode_flip_action_activated_cb"/>
+        </object>
+        <accelerator key="o"/> <!-- *looks* like a circle -->
+      </child>
+      <child>
+        <object class="GtkRadioAction" id="LayerMoveMode">
+          <property name="label" translatable="yes"
+            context="Menu|Edit|Current Mode|">Move Layer</property>
+          <property name="icon-name">mypaint-move-symbolic</property>
+          <property name="tooltip" translatable="yes"
+            >Reposition the current layer on the canvas</property>
+          <property name="group">EllipseMode</property>
+          <property name="value">7</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="FlipLayerMoveMode">
+          <property name="label" translatable="yes"
+            context="Menu|Layer|">Move</property>
+          <property name="icon-name">mypaint-move-symbolic</property>
+          <signal name="activate" handler="mode_flip_action_activated_cb"/>
+        </object>
+      </child>
+      <child>
+        <object class="GtkRadioAction" id="FrameEditMode">
+          <property name="label" translatable="yes"
+            context="Menu|Edit|Current Mode|">Edit Frame</property>
+          <property name="short-label" translatable="yes"
+            context="Toolbar|">Frame</property>
+          <property name="icon-name">mypaint-frame-symbolic</property>
+          <property name="tooltip" translatable="yes"
+            >Define a frame around the document to give it a finite size</property>
+          <property name="group">LayerMoveMode</property>
+          <property name="value">8</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="FlipFrameEditMode">
+          <property name="label" translatable="yes"
+            context="Menu|File|">Edit Frame</property>
+          <property name="icon-name">mypaint-frame-symbolic</property>
+          <signal name="activate" handler="mode_flip_action_activated_cb"/>
+        </object>
+      </child>
+
+      <child>
+        <object class="GtkRadioAction" id="ColorPickMode">
+          <property name="label" translatable="yes"
+            context="Menu|Edit|Current Mode|">Pick Color</property>
+          <property name="icon-name">mypaint-pick-color-symbolic</property>
+          <property name="tooltip" translatable="yes"
+            >Set the color from the screen</property>
+          <property name="group">FrameEditMode</property>
+          <property name="value">9</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="FlipColorPickMode">
+          <property name="label" translatable="yes"
+            context="Menu|Color|">Pick Color</property>
+          <property name="icon-name">mypaint-pick-color-symbolic</property>
+          <signal name="activate" handler="mode_flip_action_activated_cb"/>
+        </object>
+        <accelerator key="r"/>
+      </child>
+
+      <child>
+        <object class="GtkRadioAction" id="FloodFillMode">
+          <property name="label" translatable="yes"
+            context="Menu|Edit|Current Mode|">Flood Fill</property>
+          <property name="icon-name">mypaint-fill-symbolic</property>
+          <property name="tooltip" translatable="yes"
+            >Fill an area with color</property>
+          <property name="group">ColorPickMode</property>
+          <property name="value">10</property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkAction" id="FlipFloodFillMode">
+          <property name="label" translatable="yes"
+            context="Menu|Edit|">Flood Fill</property>
+          <property name="icon-name">mypaint-fill-symbolic</property>
+          <signal name="activate" handler="mode_flip_action_activated_cb"/>
+        </object>
+      </child>
+
+    </object><!-- /ModeStackActions -->
+  </child>
+</object><!-- /app_ui_manager -->
+
+</interface>
