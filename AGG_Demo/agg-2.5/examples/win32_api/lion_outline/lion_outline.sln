@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lion_outline", "lion_outline.vcproj", "{1E7C61AB-7E27-4390-B29A-4E85F9CB31E2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1E7C61AB-7E27-4390-B29A-4E85F9CB31E2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1E7C61AB-7E27-4390-B29A-4E85F9CB31E2}.Debug|Win32.Build.0 = Debug|Win32
+		{1E7C61AB-7E27-4390-B29A-4E85F9CB31E2}.Release|Win32.ActiveCfg = Release|Win32
+		{1E7C61AB-7E27-4390-B29A-4E85F9CB31E2}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
